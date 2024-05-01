@@ -3,7 +3,6 @@ from typing import Union, Any
 
 import discord
 from discord.ext import commands
-from git_gub import GithubIntegration, PrNotFond, RepositoryNotFound, BranchNotFound, DeployNotFound
 
 import random
 
@@ -100,49 +99,6 @@ class Basic(commands.Cog):
         end_time = time.time()
         latency = (end_time - start_time) * 1000
         await message.edit(content=f"Pong! Latência do bot: {latency:.2f}ms")
-
-    @commands.command()
-    async def last_deploy(self, ctx, repo_name: str):
-        try:
-            workflow = GithubIntegration().get_latest_workflow_run(repo_name)
-
-        except DeployNotFound as e:
-            embed = _create_not_found_embed_error(repo_name, e.msg)
-            await ctx.send(embed=embed)
-            return
-
-        await _create_workflow_embed(repo_name, workflow, ctx)
-
-    @commands.command()
-    async def prs(self, ctx, repo_name: str):
-        try:
-            pulls = GithubIntegration().get_pull_requests(repo_name)
-        except RepositoryNotFound as e:
-            embed = _create_not_found_embed_error(repo_name, e.msg)
-            await ctx.send(embed=embed)
-            return
-
-        except PrNotFond as e:
-            embed = _create_not_found_embed_error(repo_name, e.msg)
-            await ctx.send(embed=embed)
-            return
-
-        except BranchNotFound as e:
-            embed = _create_not_found_embed_error(repo_name, e.msg)
-            await ctx.send(embed=embed)
-            return
-
-        await _create_pr_embed(pulls, repo_name, ctx)
-
-    @commands.Cog.listener()
-    async def on_github_webhook(self, request):
-        payload = await request.json()
-        if 'action' in payload and 'repository' in payload:
-            action = payload['action']
-            repository = payload['repository']['full_name']
-            await self.send_message(f"Evento do GitHub: Ação '{action}' em '{repository}'")
-
-        return web.Response(status=200, text="OK")
 
 
 def setup(bot):

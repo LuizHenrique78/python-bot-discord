@@ -1,16 +1,14 @@
 import discord
-from aiohttp import web
-from discord.ext import commands
 import os
-from commands.basic import Basic
-from environment_custom import EnvConfigCustom
+
+from discord.ext import commands
+from environment_custom import EnvConfig
 
 prefix = "!"
 intents = discord.Intents.default()
 intents.message_content = True
 intents.messages = True
 bot = commands.Bot(command_prefix=prefix, intents=intents)
-github_webhook_instance = Basic(bot)
 
 
 async def load_commands():
@@ -25,5 +23,4 @@ async def on_ready():
     await load_commands()
     print(f'Bot está pronto: {bot.user.name}')
 
-
-bot.run(EnvConfigCustom().discord_bot_token)
+bot.run(EnvConfig().discord_bot_token)
